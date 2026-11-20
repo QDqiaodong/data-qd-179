@@ -77,6 +77,50 @@
 - `selected_passes` 仍按课程 ID 排序；其余列表沿用 v1 排序规则。不添加无法对应输入的伪考试。
 - `recognition_plan` 加上输入和原有 `attempt_audit` 应足以重现该学生结果。
 
+## 小班群体毕业修读计划（`credit-plan`，独立报告 `schema_version: 1`）
+
+### 输入契约
+
+在 v1/v2 原字段之外增加顶层 `planning` 对象（必含 `student_ids`、`terms`）；原字段的全部上限、排序与错误行为不变。规划先对同一输入完整执行原审核（`registrar.service.run`），其结果是不可变起点：存在 `transfer` 时只采用截至日已选中的 `recognition_plan`，规划不改变认定方案、不预支未来认定，也不重新选择历史成绩。晚于 `as_of` 的考试与认定仍只按原审核的未来记录处理，不能作为计划可依赖的预计通过。
+
+- `student_ids`：无重复、全部存在的学生 ID 字符串数组，最多 3 人，可以为空。数组顺序是教务给定的优先顺序，具有业务含义，不按 ID 重排。未列入的学生仍参与原输入校验和当前审核，但不参与未来选课、不占班额。
+- `terms`：最多 3 个未来学期的数组，可以为空，每项含 `id`、`start`、`end`、`credit_limit`、`offerings`。
+  - `id` 为非空字符串且全局唯一；`start`/`end` 为规范 YYYY-MM-DD，满足 `as_of < start <= end`；按 `start` 排序后严格要求前一期 `end <` 后一期 `start`（相邻、同日均视为重叠而拒绝）。
+  - `credit_limit` 为每名计划学生该期可修学分的非负整数上限，拒绝布尔值与浮点。
+  - `offerings` 为 `{course_id, capacity}` 数组；课程必须存在、同一学期不得重复；`capacity` 为非负整数，是该课该期供全部计划学生**共享**的总名额，0 表示没有可用名额。每期允许不开课，未列出的课不能选。
+- 整份规划最多出现 6 门不同开课课程、9 个课程-学期配对；超出产品边界即拒绝整份输入，不返回近似结果。新增字段的类型错误、布尔冒充整数、重复项、未知引用、缺失字段、日期错误或学期重叠等均拒绝整份输入；其他学生的数据以及原本就在未来的考试和认定仍按现有规则完整校验。
+
+### 计划规则
+
+- 每名学生最初已完成的课程是其当前审核 `selected_passes` 中的课程集合。每个未来课程对一名学生最多安排一次；已经取得学分的课程不允许重复安排。
+- 某期修读一门课，其全部先修必须在截至日已经完成，或在严格更早一期的计划结束时完成；同一期的选课互不解锁，假设及格在该期 `end` 同时生效并供以后学期使用。
+- 选课必须属于该期 `offerings`；学生该期各门课 `credits` 之和不得超过该期 `credit_limit`；某课该期的全部选课人数不得超过 `capacity`。假设及格无需补验分数，不写入 `attempts`、不伪造 `selected_passes`、不改动当前审核。
+- 毕业判定沿用原 `program.required_courses` 与 `minimum_credits`，未来课程使用原本校 `credits`/`category`，一门课只计一次。当前已符合毕业条件者毕业期序号为 0；其余人取首次满足全部原要求学期的 1-based 序号；至最后一期仍不满足视为本次未安排毕业。空计划合法，不能毕业不是输入错误；不修改培养方案，也不放宽先修、负荷或班额。
+
+### 精确最优与个人可行性
+
+在全体计划学生**同时可履行**的安排中按以下顺序逐级比较，前一项严格优先：
+
+1. 最后一期结束时毕业人数最多（含截至日已符合条件者）；
+2. 各学生能否毕业的 0/1 向量按 `student_ids` 给定顺序取字典序最大（不得为照顾高优先级学生而减少总人数）；
+3. 同一毕业标志下，毕业期序号向量字典序最小，未毕业者使用哨兵 `len(terms)+1`，当前已毕业用 0；
+4. 全体未来安排的总学分最少，再取总课程人次数最少（排除无助于已选毕业目标的多余选课）；
+5. 仍平局时，把全部选课写成 `[学期序号, student_id, course_id]` 并按 Python 元组顺序排序，取整个列表字典序最小者。
+
+求解按全体联合枚举完成，不返回独立学生计划的拼接或局部贪心结果。另为每名计划学生计算 `individual_graduation_possible`：只让该学生使用当前开课、日期、个人学分上限和原 `capacity`（其他学生不占名额，`capacity=0` 不可用）时，是否存在截至最后一期毕业的安排；当前已毕业者恒为 `true`。该判断不改变群体最优安排，个人安排不并入群体输出。据此区分“本身不可行（unreachable）”与“个人可行但群体资源取舍中延期（capacity_deferred）”。
+
+### `credit-plan` 报告
+
+报告 `schema_version` 为 1，包含 `as_of`、`baseline_audit`、`terms`、`students`、`objective`：
+
+- `baseline_audit`：同一输入调用原审核服务的完整结果，成绩与认定来源保持原样。
+- `terms`：按时间排序，每项 `{term_id, enrollments, seat_usage}`。`enrollments` 为 `{student_id, course_id}` 数组，按学生 ID、课程 ID 排序；`seat_usage` 为 `{course_id, used, capacity}` 数组，覆盖该期全部 `offerings`（含零使用项），按课程 ID 排序；无选课输出空数组。
+- `students`：按 `student_ids` 给定顺序，每项含 `student_id`、`status`、`individual_graduation_possible`、`graduation_term_index`、`graduation_term_id`、`planned_courses`、`projected_completed_courses`、`projected_credits`、`missing_required`、`credit_deficits`。
+  - `status` 仅取 `already_eligible`（当前已毕业）、`scheduled`（群体安排毕业）、`capacity_deferred`（群体未安排但个人可行）、`unreachable`（个人也不可行）。
+  - `graduation_term_index` 为 0、实际毕业期序号或未毕业时 `null`；`graduation_term_id` 仅在实际未来毕业时为该期 ID，否则 `null`。
+  - `planned_courses` 为 `{term_id, course_id}` 数组，按学期序号、课程 ID 排序；`projected_completed_courses` 为截至最后一期已完成课程 ID 升序数组；`projected_credits` 按该集合以原学分求和；`missing_required`、`credit_deficits` 沿用原审核排序与缺口口径。
+- `objective` 为 `{graduates, graduation_flags, completion_indices, planned_credits, enrollments}`，分别对应上述比较所用的毕业人数、按优先序的 0/1 数组、带未毕业哨兵的毕业期序号数组、总新增学分与课程人次数，且必须与明细一致。`student_ids` 为空时两个数组为空，人数/学分/人次均为 0，但仍输出全部 `terms` 与 `baseline_audit`。
+
 ## 通用边界
 
 由相同合格事实（v1 考试，v2 考试加整包认定）驱动成绩、学分、报读和毕业结果，保留每次考试资格原因与选中来源。单次离线方案审核，调用者给定规则，不等于任何真实学校政策。CLI 只原子新建报告；错误退出 2，旧目标不动；输出已存在时保持原目标不变，成功为原子新建。

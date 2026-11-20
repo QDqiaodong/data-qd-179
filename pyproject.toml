@@ -10,6 +10,7 @@ dependencies = []
 
 [project.scripts]
 credit-audit = "registrar.cli:main"
+credit-plan = "registrar.planning_cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

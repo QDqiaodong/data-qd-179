@@ -1,0 +1,61 @@
+{
+  "as_of": "2026-06-01",
+  "courses": [
+    {
+      "id": "A",
+      "credits": 3,
+      "pass_mark": 60,
+      "category": "STEM",
+      "prerequisites": []
+    },
+    {
+      "id": "B",
+      "credits": 3,
+      "pass_mark": 60,
+      "category": "STEM",
+      "prerequisites": []
+    }
+  ],
+  "students": [
+    {"id": "s1"},
+    {"id": "s2"},
+    {"id": "s3"}
+  ],
+  "program": {
+    "required_courses": ["A", "B"],
+    "minimum_credits": {"STEM": 6}
+  },
+  "attempts": [
+    {
+      "id": "b1",
+      "student_id": "s1",
+      "course_id": "B",
+      "date": "2026-02-01",
+      "mark": 80
+    }
+  ],
+  "planning": {
+    "student_ids": ["s1", "s2"],
+    "terms": [
+      {
+        "id": "t1",
+        "start": "2026-09-01",
+        "end": "2026-12-31",
+        "credit_limit": 3,
+        "offerings": [
+          {"course_id": "A", "capacity": 1}
+        ]
+      },
+      {
+        "id": "t2",
+        "start": "2027-02-01",
+        "end": "2027-05-31",
+        "credit_limit": 3,
+        "offerings": [
+          {"course_id": "A", "capacity": 1},
+          {"course_id": "B", "capacity": 1}
+        ]
+      }
+    ]
+  }
+}
