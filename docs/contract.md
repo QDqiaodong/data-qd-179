@@ -1,0 +1,9 @@
+# 学分与课程资格审核 v1
+
+输入一个培养方案program、课程courses、合成学生students、考试attempts及as_of。课程只有一个category、正整数credits、0..100及格线pass_mark和无环且无重复的prerequisites。最大200课程、2000学生、20000次考试。方案required_courses为已有课程的无重复子集；minimum_credits为已有category的非负整数下限。考试有唯一id、student_id、course_id、规范YYYY-MM-DD日期和0..100整数mark；同一学生/课程/日期不得重复。未知引用或先修环拒绝整个输入。
+
+按日期分组判定每名学生考试：先修必须在严格更早日期有合格pass；同日先修不解锁当日后继课程。先修不满足的考试记blocked_prerequisite，即使分数很高也不得取得学分或解锁下游；先修满足但低于及格线记failed。as_of之后考试先校验结构但不参与成绩资格、学分或先修判断，记ignored_future_attempts。无先修根课程正常参与。
+
+各课只计一次，选择最高的合格及格分；同分按最早日期/ID。重修不累加学分。credited_weighted_mark是已计学分课程的学分加权分数（Fraction字符串），不等同GPA，未及格课程不进入该数值。毕业资格同时要求全部required_courses和所有类别学分下限。eligible_uncredited_courses以截止日已取得的先修课凭据列出尚未取得学分但能报读的课，不考虑未来考试。
+
+由相同合格考试事实驱动成绩、学分、报读和毕业结果，保留每次考试资格原因与选中考试来源。单次离线方案审核，没有课程替代、转学分、先修豁免、证书颁发或个人信息管理；调用者给定规则，不等于任何真实学校政策。CLI只原子新建报告；错误退出2，旧目标不动。

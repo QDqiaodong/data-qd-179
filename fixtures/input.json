@@ -1,0 +1,97 @@
+{
+  "as_of": "2026-04-01",
+  "courses": [
+    {
+      "id": "MATH",
+      "credits": 3,
+      "pass_mark": 60,
+      "category": "STEM",
+      "prerequisites": []
+    },
+    {
+      "id": "PHYS",
+      "credits": 4,
+      "pass_mark": 60,
+      "category": "STEM",
+      "prerequisites": [
+        "MATH"
+      ]
+    },
+    {
+      "id": "WRITE",
+      "credits": 2,
+      "pass_mark": 60,
+      "category": "arts",
+      "prerequisites": []
+    }
+  ],
+  "students": [
+    {
+      "id": "synthetic-A"
+    },
+    {
+      "id": "synthetic-B"
+    }
+  ],
+  "program": {
+    "required_courses": [
+      "MATH",
+      "PHYS"
+    ],
+    "minimum_credits": {
+      "STEM": 7,
+      "arts": 2
+    }
+  },
+  "attempts": [
+    {
+      "id": "a1",
+      "student_id": "synthetic-A",
+      "course_id": "WRITE",
+      "date": "2026-01-05",
+      "mark": 70
+    },
+    {
+      "id": "a2",
+      "student_id": "synthetic-A",
+      "course_id": "MATH",
+      "date": "2026-01-10",
+      "mark": 50
+    },
+    {
+      "id": "a3",
+      "student_id": "synthetic-A",
+      "course_id": "PHYS",
+      "date": "2026-01-20",
+      "mark": 90
+    },
+    {
+      "id": "a4",
+      "student_id": "synthetic-A",
+      "course_id": "MATH",
+      "date": "2026-02-10",
+      "mark": 80
+    },
+    {
+      "id": "a5",
+      "student_id": "synthetic-A",
+      "course_id": "PHYS",
+      "date": "2026-03-10",
+      "mark": 90
+    },
+    {
+      "id": "b1",
+      "student_id": "synthetic-B",
+      "course_id": "MATH",
+      "date": "2026-02-01",
+      "mark": 70
+    },
+    {
+      "id": "b2",
+      "student_id": "synthetic-B",
+      "course_id": "PHYS",
+      "date": "2026-03-01",
+      "mark": 50
+    }
+  ]
+}
