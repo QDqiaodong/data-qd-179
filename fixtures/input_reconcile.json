@@ -1,0 +1,164 @@
+{
+  "as_of": "2026-06-01",
+  "courses": [
+    {
+      "id": "A",
+      "credits": 3,
+      "pass_mark": 60,
+      "category": "STEM",
+      "prerequisites": []
+    },
+    {
+      "id": "B",
+      "credits": 3,
+      "pass_mark": 60,
+      "category": "STEM",
+      "prerequisites": [
+        "A"
+      ]
+    },
+    {
+      "id": "D",
+      "credits": 2,
+      "pass_mark": 60,
+      "category": "arts",
+      "prerequisites": []
+    }
+  ],
+  "students": [
+    {
+      "id": "jia"
+    },
+    {
+      "id": "yi"
+    },
+    {
+      "id": "bing"
+    }
+  ],
+  "program": {
+    "required_courses": [
+      "A",
+      "B"
+    ],
+    "minimum_credits": {
+      "STEM": 6
+    }
+  },
+  "attempts": [
+    {
+      "id": "b-jia",
+      "student_id": "jia",
+      "course_id": "B",
+      "date": "2026-03-10",
+      "mark": 90
+    }
+  ],
+  "reconciliation": {
+    "waves": [
+      {
+        "id": "wave-amber",
+        "seats": [
+          {
+            "id": "amber-jia",
+            "student_id": "jia",
+            "course_id": "A",
+            "date": "2026-02-01"
+          },
+          {
+            "id": "amber-yi",
+            "student_id": "yi",
+            "course_id": "A",
+            "date": "2026-02-01"
+          }
+        ],
+        "sheets": [
+          {
+            "id": "amber-hi",
+            "mark": 90,
+            "candidates": [
+              {
+                "seat_id": "amber-jia",
+                "verified": false
+              },
+              {
+                "seat_id": "amber-yi",
+                "verified": false
+              }
+            ]
+          },
+          {
+            "id": "amber-lo",
+            "mark": 40,
+            "candidates": [
+              {
+                "seat_id": "amber-jia",
+                "verified": false
+              },
+              {
+                "seat_id": "amber-yi",
+                "verified": false
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "wave-blue",
+        "seats": [
+          {
+            "id": "blue-d-1",
+            "student_id": "bing",
+            "course_id": "D",
+            "date": "2026-01-05"
+          },
+          {
+            "id": "blue-d-2",
+            "student_id": "bing",
+            "course_id": "D",
+            "date": "2026-02-05"
+          }
+        ],
+        "sheets": [
+          {
+            "id": "blue-pass",
+            "mark": 75,
+            "candidates": [
+              {
+                "seat_id": "blue-d-1",
+                "verified": false
+              },
+              {
+                "seat_id": "blue-d-2",
+                "verified": false
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "wave-coral",
+        "seats": [
+          {
+            "id": "coral-future",
+            "student_id": "jia",
+            "course_id": "D",
+            "date": "2030-01-01"
+          }
+        ],
+        "sheets": [
+          {
+            "id": "coral-sheet",
+            "mark": 80,
+            "candidates": [
+              {
+                "seat_id": "coral-future",
+                "verified": true
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

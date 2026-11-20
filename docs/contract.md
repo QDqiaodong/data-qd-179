@@ -121,6 +121,16 @@
   - `planned_courses` 为 `{term_id, course_id}` 数组，按学期序号、课程 ID 排序；`projected_completed_courses` 为截至最后一期已完成课程 ID 升序数组；`projected_credits` 按该集合以原学分求和；`missing_required`、`credit_deficits` 沿用原审核排序与缺口口径。
 - `objective` 为 `{graduates, graduation_flags, completion_indices, planned_credits, enrollments}`，分别对应上述比较所用的毕业人数、按优先序的 0/1 数组、带未毕业哨兵的毕业期序号数组、总新增学分与课程人次数，且必须与明细一致。`student_ids` 为空时两个数组为空，人数/学分/人次均为 0，但仍输出全部 `terms` 与 `baseline_audit`。
 
+## 匿名答卷对账与毕业结论核验（`credit-reconcile`，独立报告 `schema_version: 1`）
+
+完整规则、见证口径与审核次数界限见[对账文档](reconciliation.md)，此处仅列与数据契约相关的硬性约束：
+
+- 输入在 v1/v2 原字段之外新增**必填**顶层 `reconciliation.waves`，合法空数组表示没有待对账资料；缺失 `reconciliation` 或 `waves`、类型错误均拒绝整份输入。
+- 最多 120 批，每批最多 6 个座位、6 张答卷；批次 ID、座位 ID、答卷 ID 分别在各自类别内全局唯一；座位 ID 不得与已确认考试 ID 重复。座位与已确认考试合计不超过 20000 条，且合在一起时 `(student_id, course_id, date)` 不得重复。
+- 候选只允许引用同批座位；同张答卷重复列同一座位、未知学生或课程、非布尔 `verified`、越界或非整数 `mark`、非规范日期一律拒绝。每个座位最多被 3 张答卷列为候选，每名学生全输入最多有 3 个待对账座位。
+- 新字段的结构错误即使落在永不匹配的答卷或晚于 `as_of` 的座位上也照样拒绝；截至日只影响后续学分审核，不豁免校验。
+- 对账每批独立：先最大化匹配对数，再最大化 verified 链接数，保留全部并列最优；分数、毕业结论与输入顺序不参与对账。报告 `waves` 按批次 ID、座位按座位 ID、学生按学生 ID 排序，见证平局按 `sheet_id` 向量字典序（`null` 在所有字符串之后）确定，输入重排不改变报告。
+
 ## 通用边界
 
 由相同合格事实（v1 考试，v2 考试加整包认定）驱动成绩、学分、报读和毕业结果，保留每次考试资格原因与选中来源。单次离线方案审核，调用者给定规则，不等于任何真实学校政策。CLI 只原子新建报告；错误退出 2，旧目标不动；输出已存在时保持原目标不变，成功为原子新建。

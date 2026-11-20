@@ -4,6 +4,8 @@
 
 新增 `credit-ledger` 可回放的成绩更正台账：初始化固定 v1/v2 输入目录后持续接收 attempts 的来源更正（补报、改分、撤销），每个成功批次取得严格连续的接收序号；既按最新已知成绩重新审核，也能回答"在当时已收到的信息下、某个截至日会得到什么结果"。本地 SQLite 持久化，跨进程原子提交与精确重放，不使用外部服务。
 
+另提供 `credit-reconcile` 匿名答卷对账与毕业结论核验：阅卷批次在只允许给定候选链接、答卷与座位各用一次的约束下，先最大化匹配对数再最大化签收（verified）链接数，保留全部并列最优匹配；按学生对相关批次的本地投影枚举可能归档并从头重走 v1/v2 审核（不构造整届笛卡尔积，单生审核次数恒有 4³=64 的上界），输出学分区间、毕业确定性与可复算见证。
+
 ## 独立安装与测试
 
 Python >=3.11，本批实测3.12.14。运行与unittest仅用标准库，构建工具精确固定。每仓独立venv，可复用公共下载缓存。
@@ -29,6 +31,7 @@ uv pip check --python .venv/bin/python
 .venv/bin/credit-ledger init --store run/ledger.db --source fixtures/ledger_init.json
 .venv/bin/credit-ledger ingest --store run/ledger.db --source fixtures/ledger_batch_x.json
 .venv/bin/credit-ledger audit --store run/ledger.db --known-seq 0 --output run/ledger-h0.json
+.venv/bin/credit-reconcile --source fixtures/input_reconcile.json --output run/report-reconcile.json
 ```
 
 v1 预期：2名合成学生、1名符合毕业条件、已计12学分、1次考试因先修不足被阻断，报告 `schema_version` 为 1。
@@ -39,10 +42,12 @@ v2 预期：报告 `schema_version` 为 2；学生 synthetic-A 的互斥方案�
 
 台账预期（`ledger_init.json` 等）：init 输出 `{"seq": 0}`；批 X（撤销 a）取得 seq=1 后 b 被先修阻断；`--known-seq 0` 的历史审核依然可毕业。更多更正批次与 v2 重新认定演示见[台账文档](docs/ledger.md)。
 
+对账预期（`input_reconcile.json`）：3 个阅卷批次，`wave-amber` 的高分/低分答卷与甲、乙的 A 课座位两两可链接且无签收，两个最优匹配并列；甲因后来的 B 考试是否被先修阻断而为 `needs_review`（学分区间 0..6），两份见证中 B 的状态分别为 `passed` 与 `blocked_prerequisite`；丙的一份及格 D 答卷可去两个座位之一，归属不确定但确定取得 2 学分、毕业结论为 `ineligible`；甲的未来 D 座位照常对账却计入 `ignored_future_attempts`。规则、见证口径与审核次数界限见[对账文档](docs/reconciliation.md)。
+
 输入或业务规则无效、输出已存在时退出2，保留原目标；成功退出0。报告/数据库先完整生成再原子新建，无覆盖。run/为忽略目录。
 
 ## 契约与边界
 
-详见[数据契约](docs/contract.md)与[台账文档](docs/ledger.md)。无 `transfer` 时完全兼容 v1 的输入、报告字段、排序与错误行为；出现 `transfer` 时按 v2 契约输出 `schema_version: 2`，新增整包认定可行性、逐日重审、全局最优选择和 `recognition_plan`。含 `planning` 时由 `credit-plan` 输出独立的 `schema_version: 1` 群体计划报告，内嵌完整原审核作为 `baseline_audit`；原 `credit-audit` 与 `registrar.service.run` 的行为对既有输入保持不变。`credit-ledger` 在固定目录之上只更正 attempts，接收序号与截至日两条轴独立回放；课程及及格线由输入给定，规则是本仓明确模型；不代表学校政策，不含真实学生数据。
+详见[数据契约](docs/contract.md)、[台账文档](docs/ledger.md)与[对账文档](docs/reconciliation.md)。无 `transfer` 时完全兼容 v1 的输入、报告字段、排序与错误行为；出现 `transfer` 时按 v2 契约输出 `schema_version: 2`，新增整包认定可行性、逐日重审、全局最优选择和 `recognition_plan`。含 `planning` 时由 `credit-plan` 输出独立的 `schema_version: 1` 群体计划报告，内嵌完整原审核作为 `baseline_audit`；原 `credit-audit` 与 `registrar.service.run` 的行为对既有输入保持不变。含必填 `reconciliation.waves`（允许空数组）时由 `credit-reconcile` 输出独立的 `schema_version: 1` 对账报告，原 `credit-audit`、`credit-plan`、`credit-ledger` 的入口、规则与结果不变。`credit-ledger` 在固定目录之上只更正 attempts，接收序号与截至日两条轴独立回放；课程及及格线由输入给定，规则是本仓明确模型；不代表学校政策，不含真实学生数据。
 
 样例均为本仓原创合成数据，来源见[说明](fixtures/SOURCES.md)，代码/样例MIT许可。业务演示和测试不访问网络，不需要容器或外部服务。
