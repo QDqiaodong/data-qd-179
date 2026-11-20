@@ -1,0 +1,13 @@
+{
+  "batch_id": "X",
+  "expected_seq": 0,
+  "changes": [
+    {
+      "attempt_id": "a",
+      "revision": 2,
+      "student_id": "synthetic-1",
+      "course_id": "A",
+      "op": "withdraw"
+    }
+  ]
+}

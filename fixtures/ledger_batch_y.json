@@ -1,0 +1,15 @@
+{
+  "batch_id": "Y",
+  "expected_seq": 1,
+  "changes": [
+    {
+      "attempt_id": "a",
+      "revision": 1,
+      "student_id": "synthetic-1",
+      "course_id": "A",
+      "op": "upsert",
+      "date": "2026-01-10",
+      "mark": 90
+    }
+  ]
+}

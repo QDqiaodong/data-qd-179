@@ -1,0 +1,100 @@
+{
+  "as_of": "2026-06-01",
+  "courses": [
+    {
+      "id": "A",
+      "credits": 3,
+      "pass_mark": 60,
+      "category": "STEM",
+      "prerequisites": []
+    },
+    {
+      "id": "B",
+      "credits": 3,
+      "pass_mark": 60,
+      "category": "STEM",
+      "prerequisites": []
+    },
+    {
+      "id": "C",
+      "credits": 4,
+      "pass_mark": 60,
+      "category": "STEM",
+      "prerequisites": [
+        "A"
+      ]
+    },
+    {
+      "id": "D",
+      "credits": 2,
+      "pass_mark": 60,
+      "category": "arts",
+      "prerequisites": []
+    }
+  ],
+  "students": [
+    {
+      "id": "synthetic-T"
+    }
+  ],
+  "program": {
+    "required_courses": [
+      "A",
+      "C"
+    ],
+    "minimum_credits": {
+      "STEM": 7,
+      "arts": 2
+    }
+  },
+  "attempts": [
+    {
+      "id": "d1",
+      "student_id": "synthetic-T",
+      "course_id": "D",
+      "date": "2026-02-01",
+      "mark": 70
+    },
+    {
+      "id": "c1",
+      "student_id": "synthetic-T",
+      "course_id": "C",
+      "date": "2026-03-01",
+      "mark": 80
+    }
+  ],
+  "transfer": {
+    "credit_limit": 3,
+    "evidence": [
+      {
+        "id": "ev-1",
+        "student_id": "synthetic-T",
+        "date": "2026-01-01"
+      }
+    ],
+    "options": [
+      {
+        "id": "aa",
+        "student_id": "synthetic-T",
+        "evidence_ids": [
+          "ev-1"
+        ],
+        "course_ids": [
+          "B"
+        ],
+        "effective_date": "2026-01-31"
+      },
+      {
+        "id": "zz",
+        "student_id": "synthetic-T",
+        "evidence_ids": [
+          "ev-1"
+        ],
+        "course_ids": [
+          "A"
+        ],
+        "effective_date": "2026-01-31"
+      }
+    ]
+  }
+}

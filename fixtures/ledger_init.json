@@ -1,0 +1,51 @@
+{
+  "as_of": "2026-03-01",
+  "courses": [
+    {
+      "id": "A",
+      "credits": 3,
+      "pass_mark": 60,
+      "category": "STEM",
+      "prerequisites": []
+    },
+    {
+      "id": "B",
+      "credits": 3,
+      "pass_mark": 60,
+      "category": "STEM",
+      "prerequisites": [
+        "A"
+      ]
+    }
+  ],
+  "students": [
+    {
+      "id": "synthetic-1"
+    }
+  ],
+  "program": {
+    "required_courses": [
+      "A",
+      "B"
+    ],
+    "minimum_credits": {
+      "STEM": 6
+    }
+  },
+  "attempts": [
+    {
+      "id": "a",
+      "student_id": "synthetic-1",
+      "course_id": "A",
+      "date": "2026-01-10",
+      "mark": 80
+    },
+    {
+      "id": "b",
+      "student_id": "synthetic-1",
+      "course_id": "B",
+      "date": "2026-02-10",
+      "mark": 80
+    }
+  ]
+}
