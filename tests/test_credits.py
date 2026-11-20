@@ -56,3 +56,31 @@ class CreditTests(unittest.TestCase):
         data["attempts"].append(copy)
         with self.assertRaisesRegex(ValueError, "student/course/day"):
             run(data)
+
+    def test_v1_report_shape_is_unchanged_without_transfer(self):
+        result = run(fixture())
+        self.assertEqual(result["schema_version"], 1)
+        self.assertEqual(set(result), {"schema_version", "as_of", "students", "summary"})
+        self.assertEqual(
+            set(result["students"][0]),
+            {"student_id", "selected_passes", "attempt_audit",
+             "ignored_future_attempts", "credits", "credits_by_category",
+             "credited_weighted_mark", "missing_required", "credit_deficits",
+             "graduation_eligible", "eligible_uncredited_courses"})
+        self.assertEqual(
+            set(result["students"][0]["selected_passes"][0]),
+            {"course_id", "attempt_id", "mark", "credits"})
+        self.assertEqual(
+            result["summary"],
+            {"students": 2, "graduation_eligible": 1,
+             "credited_units": 12, "blocked_attempts": 1})
+
+    def test_v1_validation_errors_remain_hard_failures(self):
+        data = fixture()
+        data["as_of"] = "2026-02-30"
+        with self.assertRaises(ValueError):
+            run(data)
+        data = fixture()
+        data["attempts"][0]["mark"] = True
+        with self.assertRaisesRegex(ValueError, "mark"):
+            run(data)

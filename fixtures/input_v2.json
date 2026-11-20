@@ -1,0 +1,128 @@
+{
+  "as_of": "2026-04-01",
+  "courses": [
+    {
+      "id": "A",
+      "credits": 3,
+      "pass_mark": 60,
+      "category": "STEM",
+      "prerequisites": []
+    },
+    {
+      "id": "B",
+      "credits": 3,
+      "pass_mark": 60,
+      "category": "STEM",
+      "prerequisites": []
+    },
+    {
+      "id": "C",
+      "credits": 4,
+      "pass_mark": 60,
+      "category": "STEM",
+      "prerequisites": [
+        "A"
+      ]
+    },
+    {
+      "id": "D",
+      "credits": 2,
+      "pass_mark": 60,
+      "category": "arts",
+      "prerequisites": []
+    }
+  ],
+  "students": [
+    {
+      "id": "synthetic-A"
+    },
+    {
+      "id": "synthetic-B"
+    }
+  ],
+  "program": {
+    "required_courses": [],
+    "minimum_credits": {
+      "STEM": 7,
+      "arts": 2
+    }
+  },
+  "attempts": [
+    {
+      "id": "d1",
+      "student_id": "synthetic-A",
+      "course_id": "D",
+      "date": "2026-02-01",
+      "mark": 70
+    },
+    {
+      "id": "c1",
+      "student_id": "synthetic-A",
+      "course_id": "C",
+      "date": "2026-03-01",
+      "mark": 80
+    },
+    {
+      "id": "x1",
+      "student_id": "synthetic-B",
+      "course_id": "D",
+      "date": "2026-02-15",
+      "mark": 55
+    }
+  ],
+  "transfer": {
+    "credit_limit": 3,
+    "evidence": [
+      {
+        "id": "ev-1",
+        "student_id": "synthetic-A",
+        "date": "2026-01-01"
+      },
+      {
+        "id": "ev-2",
+        "student_id": "synthetic-B",
+        "date": "2026-01-05"
+      },
+      {
+        "id": "ev-3",
+        "student_id": "synthetic-B",
+        "date": "2030-01-05"
+      }
+    ],
+    "options": [
+      {
+        "id": "aa",
+        "student_id": "synthetic-A",
+        "evidence_ids": [
+          "ev-1"
+        ],
+        "course_ids": [
+          "B"
+        ],
+        "effective_date": "2026-01-31"
+      },
+      {
+        "id": "zz",
+        "student_id": "synthetic-A",
+        "evidence_ids": [
+          "ev-1"
+        ],
+        "course_ids": [
+          "A"
+        ],
+        "effective_date": "2026-01-31"
+      },
+      {
+        "id": "b-future",
+        "student_id": "synthetic-B",
+        "evidence_ids": [
+          "ev-3"
+        ],
+        "course_ids": [
+          "B"
+        ],
+        "effective_date": "2030-02-01"
+      }
+    ]
+  }
+}

@@ -4,11 +4,98 @@ from .io import integer, text, unique
 
 def parse_day(value):
     if not isinstance(value, str):
-        raise ValueError("date must be YYYY-MM-DD")
-    result = date.fromisoformat(value)
+        raise ValueError("date must be canonical YYYY-MM-DD")
+    try:
+        result = date.fromisoformat(value)
+    except ValueError:
+        raise ValueError("date must be canonical YYYY-MM-DD") from None
     if result.isoformat() != value:
         raise ValueError("date must be canonical YYYY-MM-DD")
     return result
+
+
+def _ref_array(value, label, known):
+    if not isinstance(value, list) or not value:
+        raise ValueError(f"{label} must be a nonempty array")
+    if any(not isinstance(item, str) for item in value):
+        raise ValueError(f"{label} must contain strings")
+    if len(set(value)) != len(value):
+        raise ValueError(f"{label} must be unique")
+    for item in value:
+        if item not in known:
+            raise ValueError(f"unknown {label} reference: {item}")
+    return list(value)
+
+
+def _require_id_rows(rows, label):
+    if not isinstance(rows, list):
+        raise ValueError(f"{label} must be an array")
+    for row in rows:
+        if not isinstance(row, dict) or "id" not in row:
+            raise ValueError(f"{label} rows require an id")
+        text(row["id"], f"{label}.id")
+    return unique(rows, label)
+
+
+def _validate_transfer(node, students, courses):
+    if not isinstance(node, dict):
+        raise ValueError("transfer must be an object")
+    for field in ("evidence", "options", "credit_limit"):
+        if field not in node:
+            raise ValueError(f"transfer.{field} is required")
+    credit_limit = integer(node["credit_limit"], "transfer.credit_limit", 0)
+    evidence_rows = _require_id_rows(node["evidence"], "evidence")
+    if len(evidence_rows) > 20000:
+        raise ValueError("at most 20000 evidence records")
+    evidence = {}
+    for eid, ev in evidence_rows.items():
+        if "student_id" not in ev or "date" not in ev:
+            raise ValueError("evidence requires student_id and date")
+        sid = text(ev["student_id"], "evidence.student_id")
+        if sid not in students:
+            raise ValueError("unknown evidence student")
+        evidence[eid] = {"id": eid, "student_id": sid, "date": parse_day(ev["date"])}
+    raw_options = node["options"]
+    if not isinstance(raw_options, list):
+        raise ValueError("options must be an array")
+    for row in raw_options:
+        if not isinstance(row, dict) or "id" not in row:
+            raise ValueError("option rows require an id")
+        text(row["id"], "option.id")
+    options = {}
+    by_student = {}
+    for row in raw_options:
+        if not isinstance(row, dict):
+            raise ValueError("option rows must be objects")
+        for field in ("id", "student_id", "evidence_ids", "course_ids", "effective_date"):
+            if field not in row:
+                raise ValueError(f"option.{field} is required")
+        oid = text(row["id"], "option.id")
+        if oid in options:
+            raise ValueError(f"duplicate option id: {oid}")
+        sid = text(row["student_id"], "option.student_id")
+        if sid not in students:
+            raise ValueError("unknown option student")
+        evidence_ids = _ref_array(row["evidence_ids"], "option.evidence_ids", evidence)
+        for ref in evidence_ids:
+            if evidence[ref]["student_id"] != sid:
+                raise ValueError("evidence not owned by option student")
+        course_ids = _ref_array(row["course_ids"], "option.course_ids", courses)
+        effective_date = parse_day(row["effective_date"])
+        for ref in evidence_ids:
+            if effective_date < evidence[ref]["date"]:
+                raise ValueError("effective_date precedes evidence date")
+        record = {"id": oid, "student_id": sid, "evidence_ids": evidence_ids,
+                  "course_ids": course_ids, "effective_date": effective_date}
+        options[oid] = record
+        by_student.setdefault(sid, []).append(record)
+    if len(options) > 2000:
+        raise ValueError("at most 2000 options")
+    for sid, items in by_student.items():
+        if len(items) > 12:
+            raise ValueError(f"student {sid} has more than 12 options")
+    return {"credit_limit": credit_limit, "evidence": evidence,
+            "options": options, "by_student": by_student}
 
 
 def validate(data):
@@ -66,4 +153,5 @@ def validate(data):
         if key in seen:
             raise ValueError("duplicate student/course/day attempt")
         seen.add(key)
-    return cutoff, courses, students, list(attempts.values()), program
+    transfer = _validate_transfer(data["transfer"], students, courses) if "transfer" in data else None
+    return cutoff, courses, students, list(attempts.values()), program, transfer
