@@ -6,3 +6,5 @@
 - `ledger_init.json`：台账初始化样例（A 无先修、B 先修 A），配合 `ledger_batch_x.json`（撤销 a）、`ledger_batch_y.json`（补到更旧修订）、`ledger_batch_z.json`（同日恢复 a）演示撤销、乱序修订与同日不解锁。
 - `ledger_init_v2.json`、`ledger_batch_v2.json`：v2 台账样例，补报本校 A 及格后最优认定方案由 `[“zz”]` 变为 `[“aa”]`，历史序号的方案保持不变。
 - `input_reconcile.json`：匿名答卷对账样例，覆盖无签收并列最优（甲/乙 A 课座位与高分/低分答卷）、一份答卷对应同学生两个座位时归属不确定但毕业结论确定（丙的 D 课）、带签收的未来座位参与对账却不计入当前成绩（甲的未来 D）。
+- `input_disclosure.json`：院系×入学届毕业资格公开简报样例（2 院系×2 入学届、9 名合成学生）。含已公开的 `design/2023` 精确值、受保护的 `computing/2024`、以及精确/区间/隐藏三种发布结果；`s1` 依赖 v2 转学分认定解锁先修毕业。数值均为合成，非真实学生数据。
+- `input_disclosure_min.json`：简报的最小可区分样例（A 院系两届 1 人/2 人，保护第一格），复现验收例一。

@@ -1,0 +1,244 @@
+{
+  "as_of": "2026-06-01",
+  "courses": [
+    {
+      "id": "A",
+      "credits": 3,
+      "pass_mark": 60,
+      "category": "STEM",
+      "prerequisites": []
+    },
+    {
+      "id": "B",
+      "credits": 4,
+      "pass_mark": 60,
+      "category": "STEM",
+      "prerequisites": [
+        "A"
+      ]
+    }
+  ],
+  "students": [
+    {
+      "id": "s1"
+    },
+    {
+      "id": "s2"
+    },
+    {
+      "id": "s3"
+    },
+    {
+      "id": "s4"
+    },
+    {
+      "id": "s5"
+    },
+    {
+      "id": "s6"
+    },
+    {
+      "id": "s7"
+    },
+    {
+      "id": "s8"
+    },
+    {
+      "id": "s9"
+    }
+  ],
+  "program": {
+    "required_courses": [
+      "A",
+      "B"
+    ],
+    "minimum_credits": {
+      "STEM": 7
+    }
+  },
+  "attempts": [
+    {
+      "id": "s1-b",
+      "student_id": "s1",
+      "course_id": "B",
+      "date": "2026-03-01",
+      "mark": 88
+    },
+    {
+      "id": "s2-a",
+      "student_id": "s2",
+      "course_id": "A",
+      "date": "2026-01-05",
+      "mark": 75
+    },
+    {
+      "id": "s2-b",
+      "student_id": "s2",
+      "course_id": "B",
+      "date": "2026-03-01",
+      "mark": 70
+    },
+    {
+      "id": "s3-a",
+      "student_id": "s3",
+      "course_id": "A",
+      "date": "2026-01-05",
+      "mark": 65
+    },
+    {
+      "id": "s4-b",
+      "student_id": "s4",
+      "course_id": "B",
+      "date": "2026-03-01",
+      "mark": 95
+    },
+    {
+      "id": "s6-a",
+      "student_id": "s6",
+      "course_id": "A",
+      "date": "2026-01-05",
+      "mark": 90
+    },
+    {
+      "id": "s6-b",
+      "student_id": "s6",
+      "course_id": "B",
+      "date": "2026-03-01",
+      "mark": 90
+    },
+    {
+      "id": "s7-a",
+      "student_id": "s7",
+      "course_id": "A",
+      "date": "2026-01-05",
+      "mark": 80
+    },
+    {
+      "id": "s7-b",
+      "student_id": "s7",
+      "course_id": "B",
+      "date": "2026-03-01",
+      "mark": 80
+    }
+  ],
+  "transfer": {
+    "credit_limit": 3,
+    "evidence": [
+      {
+        "id": "e1",
+        "student_id": "s1",
+        "date": "2026-01-01"
+      }
+    ],
+    "options": [
+      {
+        "id": "t1",
+        "student_id": "s1",
+        "evidence_ids": [
+          "e1"
+        ],
+        "course_ids": [
+          "A"
+        ],
+        "effective_date": "2026-01-10"
+      }
+    ]
+  },
+  "disclosure": {
+    "departments": [
+      "computing",
+      "design"
+    ],
+    "cohorts": [
+      "2023",
+      "2024"
+    ],
+    "memberships": [
+      {
+        "student_id": "s1",
+        "department": "computing",
+        "cohort": "2023"
+      },
+      {
+        "student_id": "s2",
+        "department": "computing",
+        "cohort": "2023"
+      },
+      {
+        "student_id": "s3",
+        "department": "computing",
+        "cohort": "2023"
+      },
+      {
+        "student_id": "s4",
+        "department": "computing",
+        "cohort": "2024"
+      },
+      {
+        "student_id": "s5",
+        "department": "computing",
+        "cohort": "2024"
+      },
+      {
+        "student_id": "s6",
+        "department": "design",
+        "cohort": "2023"
+      },
+      {
+        "student_id": "s7",
+        "department": "design",
+        "cohort": "2024"
+      },
+      {
+        "student_id": "s8",
+        "department": "design",
+        "cohort": "2024"
+      },
+      {
+        "student_id": "s9",
+        "department": "design",
+        "cohort": "2023"
+      }
+    ],
+    "protected_cells": [
+      {
+        "department": "computing",
+        "cohort": "2024"
+      }
+    ],
+    "requests": [
+      {
+        "department": "computing",
+        "cohort": null
+      },
+      {
+        "department": "computing",
+        "cohort": "2023"
+      },
+      {
+        "department": "design",
+        "cohort": null
+      },
+      {
+        "department": null,
+        "cohort": null
+      },
+      {
+        "department": null,
+        "cohort": "2024"
+      },
+      {
+        "department": "computing",
+        "cohort": "2024"
+      }
+    ],
+    "prior": [
+      {
+        "department": "design",
+        "cohort": "2023",
+        "min": 1,
+        "max": 1
+      }
+    ]
+  }
+}

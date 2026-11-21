@@ -1,0 +1,90 @@
+{
+  "as_of": "2026-06-01",
+  "courses": [
+    {
+      "id": "PASS",
+      "credits": 3,
+      "pass_mark": 60,
+      "category": "STEM",
+      "prerequisites": []
+    }
+  ],
+  "students": [
+    {
+      "id": "a"
+    },
+    {
+      "id": "b"
+    },
+    {
+      "id": "c"
+    }
+  ],
+  "program": {
+    "required_courses": [
+      "PASS"
+    ],
+    "minimum_credits": {
+      "STEM": 3
+    }
+  },
+  "attempts": [
+    {
+      "id": "a-p",
+      "student_id": "a",
+      "course_id": "PASS",
+      "date": "2026-01-01",
+      "mark": 90
+    },
+    {
+      "id": "b-p",
+      "student_id": "b",
+      "course_id": "PASS",
+      "date": "2026-01-01",
+      "mark": 90
+    }
+  ],
+  "disclosure": {
+    "departments": [
+      "A"
+    ],
+    "cohorts": [
+      "first",
+      "second"
+    ],
+    "memberships": [
+      {
+        "student_id": "a",
+        "department": "A",
+        "cohort": "first"
+      },
+      {
+        "student_id": "b",
+        "department": "A",
+        "cohort": "second"
+      },
+      {
+        "student_id": "c",
+        "department": "A",
+        "cohort": "second"
+      }
+    ],
+    "protected_cells": [
+      {
+        "department": "A",
+        "cohort": "first"
+      }
+    ],
+    "requests": [
+      {
+        "department": "A",
+        "cohort": null
+      },
+      {
+        "department": "A",
+        "cohort": "second"
+      }
+    ],
+    "prior": []
+  }
+}
