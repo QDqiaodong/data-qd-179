@@ -8,6 +8,8 @@
 
 另提供 `credit-reconcile` 匿名答卷对账与毕业结论核验：阅卷批次在只允许给定候选链接、答卷与座位各用一次的约束下，先最大化匹配对数再最大化签收（verified）链接数，保留全部并列最优匹配；按学生对相关批次的本地投影枚举可能归档并从头重走 v1/v2 审核（不构造整届笛卡尔积，单生审核次数恒有 4³=64 的上界），输出学分区间、毕业确定性与可复算见证。
 
+另提供 `credit-awards` 主辅修联合审核：在同一份 v1/v2 成绩快照上把已取得学分的课程在主修与 1..4 个辅修要求组之间做整门、互斥分配（一门课只能用于一个用途，辅修内部也不能一课填两组），先枚举全部可行转学分方案组合并逐组从头重审得到证据，再在“方案 × 分配”的完整候选空间按主修优先、辅修其次、v2 分配前审核平局规则、分配列表字典序的逐级顺序取精确最优；转学分课程不能填 `exam` 限定组，超下限的整门课照计全额成本，学分不够时返回最佳分配与真实缺口。规则与验收例见[联合审核文档](docs/awards.md)。
+
 ## 独立安装与测试
 
 Python >=3.11，本批实测3.12.14。运行与unittest仅用标准库，构建工具精确固定。每仓独立venv，可复用公共下载缓存。
@@ -35,6 +37,8 @@ uv pip check --python .venv/bin/python
 .venv/bin/credit-ledger audit --store run/ledger.db --known-seq 0 --output run/ledger-h0.json
 .venv/bin/credit-reconcile --source fixtures/input_reconcile.json --output run/report-reconcile.json
 .venv/bin/credit-disclosure --source fixtures/input_disclosure.json --output run/report-disclosure.json
+.venv/bin/credit-awards --source fixtures/input_awards.json --output run/report-awards.json
+.venv/bin/credit-awards --source fixtures/input_awards_v2.json --output run/report-awards-v2.json
 ```
 
 v1 预期：2名合成学生、1名符合毕业条件、已计12学分、1次考试因先修不足被阻断，报告 `schema_version` 为 1。
@@ -49,10 +53,12 @@ v2 预期：报告 `schema_version` 为 2；学生 synthetic-A 的互斥方案�
 
 简报预期（`input_disclosure.json`）：2个院系×2个入学届、9名合成学生；`design/2023` 的 2 人中恰 1 人毕业已先公开，受保护格为 `computing/2024`。按请求顺序输出：`computing` 合计与 `computing/2023` 发 `[2,3]`，`design` 合计精确 2，全校合计发 `[4,5]`，`2024` 列合计隐藏，`computing/2024` 发 `[0,1]`。
 
+联合审核预期（`input_awards.json`）：stu-full 四门全过，D 划实践组、C 划项目组，A/B 留主修，主修与辅修同时达标；stu-short 只过 B/C/D，主修保住 B 加另一门共 6 学分，辅修两组无法同时填满，项目组显示 3 学分缺口；未列入的 stu-bystander 不出现。v2 样例（`input_awards_v2.json`）：转学分认定的 C 只能进 `any` 组，本校考试的 A 进 `exam` 组，主修留 B/D 且两侧同时达标。
+
 输入或业务规则无效、输出已存在时退出2，保留原目标；成功退出0。报告/数据库先完整生成再原子新建，无覆盖。run/为忽略目录。
 
 ## 契约与边界
 
-详见[数据契约](docs/contract.md)、[台账文档](docs/ledger.md)、[对账文档](docs/reconciliation.md)与[简报文档](docs/disclosure.md)。无 `transfer` 时完全兼容 v1 的输入、报告字段、排序与错误行为；出现 `transfer` 时按 v2 契约输出 `schema_version: 2`，新增整包认定可行性、逐日重审、全局最优选择和 `recognition_plan`。含 `planning` 时由 `credit-plan` 输出独立的 `schema_version: 1` 群体计划报告，内嵌完整原审核作为 `baseline_audit`；原 `credit-audit` 与 `registrar.service.run` 的行为对既有输入保持不变。含必填 `disclosure` 对象时由 `credit-disclosure` 输出独立的 `schema_version: 1` 简报：登记人数表、按 `requests` 顺序的精确/区间/隐藏条目，不含逐生信息或原审核报告；原 `credit-audit`、`credit-plan`、`credit-ledger`、`credit-reconcile` 的入口、规则与结果不变。含必填 `reconciliation.waves`（允许空数组）时由 `credit-reconcile` 输出独立的 `schema_version: 1` 对账报告，原 `credit-audit`、`credit-plan`、`credit-ledger` 的入口、规则与结果不变。`credit-ledger` 在固定目录之上只更正 attempts，接收序号与截至日两条轴独立回放；课程及及格线由输入给定，规则是本仓明确模型；不代表学校政策，不含真实学生数据。
+详见[数据契约](docs/contract.md)、[台账文档](docs/ledger.md)、[对账文档](docs/reconciliation.md)与[简报文档](docs/disclosure.md)。无 `transfer` 时完全兼容 v1 的输入、报告字段、排序与错误行为；出现 `transfer` 时按 v2 契约输出 `schema_version: 2`，新增整包认定可行性、逐日重审、全局最优选择和 `recognition_plan`。含 `planning` 时由 `credit-plan` 输出独立的 `schema_version: 1` 群体计划报告，内嵌完整原审核作为 `baseline_audit`；原 `credit-audit` 与 `registrar.service.run` 的行为对既有输入保持不变。含必填 `disclosure` 对象时由 `credit-disclosure` 输出独立的 `schema_version: 1` 简报：登记人数表、按 `requests` 顺序的精确/区间/隐藏条目，不含逐生信息或原审核报告；原 `credit-audit`、`credit-plan`、`credit-ledger`、`credit-reconcile` 的入口、规则与结果不变。含必填 `reconciliation.waves`（允许空数组）时由 `credit-reconcile` 输出独立的 `schema_version: 1` 对账报告，原 `credit-audit`、`credit-plan`、`credit-ledger` 的入口、规则与结果不变。含必填 `awards` 对象时由 `credit-awards` 输出独立的 `schema_version: 1` 主辅修联合审核报告（内嵌最终所选证据的原结构学生行，不含 summary），原 `credit-audit`、`credit-plan`、`credit-ledger`、`credit-reconcile`、`credit-disclosure` 的入口、规则与结果不变；`awards` 节点本身对 `credit-audit` 完全透明。`credit-ledger` 在固定目录之上只更正 attempts，接收序号与截至日两条轴独立回放；课程及及格线由输入给定，规则是本仓明确模型；不代表学校政策，不含真实学生数据。
 
 样例均为本仓原创合成数据，来源见[说明](fixtures/SOURCES.md)，代码/样例MIT许可。业务演示和测试不访问网络，不需要容器或外部服务。

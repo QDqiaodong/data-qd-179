@@ -1,0 +1,142 @@
+{
+  "as_of": "2026-06-30",
+  "courses": [
+    {
+      "id": "A",
+      "credits": 3,
+      "pass_mark": 60,
+      "category": "STEM",
+      "prerequisites": []
+    },
+    {
+      "id": "B",
+      "credits": 3,
+      "pass_mark": 60,
+      "category": "STEM",
+      "prerequisites": []
+    },
+    {
+      "id": "C",
+      "credits": 3,
+      "pass_mark": 60,
+      "category": "STEM",
+      "prerequisites": []
+    },
+    {
+      "id": "D",
+      "credits": 3,
+      "pass_mark": 60,
+      "category": "STEM",
+      "prerequisites": []
+    }
+  ],
+  "students": [
+    {
+      "id": "stu-full"
+    },
+    {
+      "id": "stu-short"
+    },
+    {
+      "id": "stu-bystander"
+    }
+  ],
+  "program": {
+    "required_courses": [
+      "B"
+    ],
+    "minimum_credits": {
+      "STEM": 6
+    }
+  },
+  "attempts": [
+    {
+      "id": "full-a",
+      "student_id": "stu-full",
+      "course_id": "A",
+      "date": "2026-02-02",
+      "mark": 81
+    },
+    {
+      "id": "full-b",
+      "student_id": "stu-full",
+      "course_id": "B",
+      "date": "2026-02-02",
+      "mark": 82
+    },
+    {
+      "id": "full-c",
+      "student_id": "stu-full",
+      "course_id": "C",
+      "date": "2026-02-02",
+      "mark": 83
+    },
+    {
+      "id": "full-d",
+      "student_id": "stu-full",
+      "course_id": "D",
+      "date": "2026-02-02",
+      "mark": 84
+    },
+    {
+      "id": "short-b",
+      "student_id": "stu-short",
+      "course_id": "B",
+      "date": "2026-02-03",
+      "mark": 71
+    },
+    {
+      "id": "short-c",
+      "student_id": "stu-short",
+      "course_id": "C",
+      "date": "2026-02-03",
+      "mark": 72
+    },
+    {
+      "id": "short-d",
+      "student_id": "stu-short",
+      "course_id": "D",
+      "date": "2026-02-03",
+      "mark": 73
+    },
+    {
+      "id": "by-a",
+      "student_id": "stu-bystander",
+      "course_id": "A",
+      "date": "2026-02-04",
+      "mark": 90
+    },
+    {
+      "id": "by-b",
+      "student_id": "stu-bystander",
+      "course_id": "B",
+      "date": "2026-02-04",
+      "mark": 90
+    }
+  ],
+  "awards": {
+    "student_ids": [
+      "stu-full",
+      "stu-short"
+    ],
+    "groups": [
+      {
+        "id": "practice",
+        "course_ids": [
+          "C",
+          "D"
+        ],
+        "minimum_credits": 3,
+        "source": "any"
+      },
+      {
+        "id": "project",
+        "course_ids": [
+          "C"
+        ],
+        "minimum_credits": 3,
+        "source": "any"
+      }
+    ]
+  }
+}

@@ -5,6 +5,10 @@ consumed and every target course is recognized as a pass at its effective
 date.  Feasible option subsets are enumerated per student, each subset drives
 a full re-audit of every exam, and the subset with the best whole-program
 outcome wins.  No option is ever applied independently and deduplicated later.
+
+The enumeration and the full audit are exposed separately so that other
+commands (the primary/minor joint review) can evaluate every feasible plan
+from scratch instead of reusing the plan selected by ``credit-audit``.
 """
 from fractions import Fraction
 
@@ -101,27 +105,24 @@ def _evaluate(chosen, student_rows, courses, program, cutoff):
     }
 
 
-def student_transfer_result(student_id, rows, options, credit_limit, courses, program, cutoff):
-    rows = sorted(rows, key=lambda r: (r["date"], r["id"]))
-    available = [opt for opt in options if opt["effective_date"] <= cutoff]
-    cost = {opt["id"]: sum(courses[c]["credits"] for c in opt["course_ids"])
-            for opt in available}
-    best = None  # (comparison key, chosen, result, charged)
+def feasible_plans(available, credit_limit, courses):
+    """Enumerate every feasible subset of cutoff-effective transfer options.
 
-    def consider(chosen):
-        result = _evaluate(chosen, rows, courses, program, cutoff)
-        charged = sum(cost[opt["id"]] for opt in chosen)
-        ids = sorted(opt["id"] for opt in chosen)
-        graduation, required_covered, capped_category_credits, credits = result["objective"]
-        key = ((not graduation, -required_covered, -capped_category_credits, -credits),
-               charged, len(chosen), ids)
-        nonlocal best
-        if best is None or key < best[0]:
-            best = (key, chosen, result, charged)
+    The original package rules apply unchanged: shared evidence items and
+    repeated target courses make two options mutually exclusive, and the sum
+    of each option's full target-course cost must stay within the per-student
+    credit limit.  The empty plan is always included.  Plans are yielded as
+    tuples of option records in the order given; each tuple is paired with its
+    charged quota cost.  Enumeration is structural: it never expands arrays by
+    credit values.
+    """
+    cost = {opt["id"]: sum(courses[cid]["credits"] for cid in opt["course_ids"])
+            for opt in available}
+    plans = []
 
     def search(index, chosen, used_evidence, used_courses, spent):
         if index == len(available):
-            consider(chosen)
+            plans.append((tuple(chosen), spent))
             return
         option = available[index]
         search(index + 1, chosen, used_evidence, used_courses, spent)
@@ -135,7 +136,13 @@ def student_transfer_result(student_id, rows, options, credit_limit, courses, pr
                    spent + charge)
 
     search(0, [], set(), set(), 0)
-    _, chosen, result, charged = best
+    return plans
+
+
+def build_transfer_student_row(student_id, rows, chosen, charged,
+                               courses, program, cutoff):
+    """The original v2 student report row for one chosen feasible plan."""
+    result = _evaluate(chosen, rows, courses, program, cutoff)
     return {
         "student_id": student_id,
         "selected_passes": result["selected_passes"],
@@ -159,3 +166,25 @@ def student_transfer_result(student_id, rows, options, credit_limit, courses, pr
             },
         },
     }
+
+
+def student_transfer_result(student_id, rows, options, credit_limit, courses, program, cutoff):
+    rows = sorted(rows, key=lambda r: (r["date"], r["id"]))
+    available = [opt for opt in options if opt["effective_date"] <= cutoff]
+    best = None  # (comparison key, chosen, charged)
+
+    def key_for(chosen, charged, result):
+        graduation, required_covered, capped_category_credits, credits = result["objective"]
+        ids = sorted(opt["id"] for opt in chosen)
+        return ((not graduation, -required_covered, -capped_category_credits, -credits),
+                charged, len(chosen), ids)
+
+    for chosen, charged in feasible_plans(available, credit_limit, courses):
+        result = _evaluate(chosen, rows, courses, program, cutoff)
+        key = key_for(chosen, charged, result)
+        if best is None or key < best[0]:
+            best = (key, chosen, charged, result)
+
+    _key, chosen, charged, result = best
+    return build_transfer_student_row(
+        student_id, rows, chosen, charged, courses, program, cutoff)

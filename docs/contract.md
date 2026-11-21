@@ -143,6 +143,16 @@
 - 报告仅含 `{schema_version, as_of, enrollment, items}`；`enrollment` 按 `(department, cohort)` 字符串顺序覆盖全部格子，`items` 按 `requests` 顺序，`bounds` 为 `[n,n]`、公布区间或 `null`。除 `requests` 顺序外，新输入数组重排不改变报告。
 - 可行性用精确的带上下界环流判断，工作量与完整候选表数量无关；不输出候选表。
 
+## 主辅修联合审核（`credit-awards`，独立报告 `schema_version: 1`）
+
+完整规则、逐级比较序与验收例见[联合审核文档](awards.md)，此处仅列数据契约硬性约束：
+
+- 输入在 v1/v2 原字段之外新增**必填**顶层 `awards`，含 `student_ids`、`groups`；缺失或类型错误拒绝整份输入。
+- `student_ids` 为最多 12 个不重复已知学生 ID 的数组，可为空；其他学生与未来记录仍按原规则完整校验但不出现在报告中，学生按 ID 排序输出，输入重排不改变结果。
+- `groups` 为 1..4 个辅修要求组，每项恰含 `id`、`course_ids`、`minimum_credits`、`source`；组 ID 不重复，`course_ids` 非空且组内不重复并引用现有课程，下限为正整数（拒绝布尔值），`source` 仅取 `any`/`exam`。所有组共引用至多 10 门不同课程，每门课至多出现在两个组；下限超过候选学分总和仍合法，结果显示缺口。
+- 有 `transfer` 时，对本次列出的学生，其截至 `as_of` 已生效方案至多 6 个，超限拒绝整份输入；未生效方案仍按原每生 12 个的规则校验。
+- 报告仅含 `{schema_version, as_of, students}`，学生行含 `student_id`、原结构 `evidence_audit`、`primary` 与 `secondary`；证据学分恒等于主修与辅修分配学分之和。
+
 ## 通用边界
 
 由相同合格事实（v1 考试，v2 考试加整包认定）驱动成绩、学分、报读和毕业结果，保留每次考试资格原因与选中来源。单次离线方案审核，调用者给定规则，不等于任何真实学校政策。CLI 只原子新建报告；错误退出 2，旧目标不动；输出已存在时保持原目标不变，成功为原子新建。

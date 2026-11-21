@@ -1,0 +1,117 @@
+{
+  "as_of": "2026-06-30",
+  "courses": [
+    {
+      "id": "A",
+      "credits": 3,
+      "pass_mark": 60,
+      "category": "STEM",
+      "prerequisites": []
+    },
+    {
+      "id": "B",
+      "credits": 3,
+      "pass_mark": 60,
+      "category": "STEM",
+      "prerequisites": []
+    },
+    {
+      "id": "C",
+      "credits": 3,
+      "pass_mark": 60,
+      "category": "STEM",
+      "prerequisites": []
+    },
+    {
+      "id": "D",
+      "credits": 3,
+      "pass_mark": 60,
+      "category": "STEM",
+      "prerequisites": []
+    }
+  ],
+  "students": [
+    {
+      "id": "stu-v2"
+    }
+  ],
+  "program": {
+    "required_courses": [
+      "B"
+    ],
+    "minimum_credits": {
+      "STEM": 6
+    }
+  },
+  "attempts": [
+    {
+      "id": "v2-a",
+      "student_id": "stu-v2",
+      "course_id": "A",
+      "date": "2026-03-09",
+      "mark": 75
+    },
+    {
+      "id": "v2-b",
+      "student_id": "stu-v2",
+      "course_id": "B",
+      "date": "2026-03-10",
+      "mark": 78
+    },
+    {
+      "id": "v2-d",
+      "student_id": "stu-v2",
+      "course_id": "D",
+      "date": "2026-03-10",
+      "mark": 88
+    }
+  ],
+  "transfer": {
+    "credit_limit": 3,
+    "evidence": [
+      {
+        "id": "ev-c",
+        "student_id": "stu-v2",
+        "date": "2026-01-15"
+      }
+    ],
+    "options": [
+      {
+        "id": "recognize-c",
+        "student_id": "stu-v2",
+        "evidence_ids": [
+          "ev-c"
+        ],
+        "course_ids": [
+          "C"
+        ],
+        "effective_date": "2026-02-01"
+      }
+    ]
+  },
+  "awards": {
+    "student_ids": [
+      "stu-v2"
+    ],
+    "groups": [
+      {
+        "id": "elective-any",
+        "course_ids": [
+          "C",
+          "D"
+        ],
+        "minimum_credits": 3,
+        "source": "any"
+      },
+      {
+        "id": "elective-exam",
+        "course_ids": [
+          "A",
+          "D"
+        ],
+        "minimum_credits": 3,
+        "source": "exam"
+      }
+    ]
+  }
+}
